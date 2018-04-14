@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="aronb.energyclicker.WindUpgrade">
+
+    <fragment
+        android:id="@+id/windUpgradeMoneyFragment"
+        android:name="aronb.energyclicker.Money"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/windUpgradeMainData"
+        android:layout_width="match_parent"
+        android:layout_height="80sp"
+
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/windUpgradeMoneyFragment">
+
+        <TextView
+            android:id="@+id/windUpgradeWindSpeedTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="1sp"
+            android:paddingTop="1sp"
+            android:text="Wind Speed: 20 KMh"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/windUpgradeBasePowerTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="1sp"
+            android:paddingTop="1sp"
+            android:text="Base Gen: 30 MWh"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/windUpgradeTotalPowerTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="1sp"
+            android:paddingTop="1sp"
+            android:text="Current Gen: 60 MWh"
+            android:textColor="@android:color/black" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/windUpgradeListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/border_top_bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/windUpgradeMainData" />
+</android.support.constraint.ConstraintLayout>
