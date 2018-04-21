@@ -1,131 +1,118 @@
 package aronb.energyclicker;
 
-import android.support.v7.app.AppCompatActivity;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 
-import java.util.ArrayList;
+public class WindUpgrade extends AppCompatActivity implements aronb.energyclicker.WUTab1.OnFragmentInteractionListener, aronb.energyclicker.WUTab2.OnFragmentInteractionListener  {
 
-public class WindUpgrade extends AppCompatActivity {
+    //Game/Layout related
     Thread upThread;
-    Game game = Main.game;
+    TabLayout tabLayout;
+    ViewPager viewPager;
+    WindUpgradePageAdapter adapter;
     Money money;
 
-    TextView windSpeed;
-    TextView basePower;
-    TextView currentPower;
-    ListView windUpgrades;
-    UpgradeAdapter windListAdapter;
-    ArrayList<Upgrade> windUpgradeList;
 
-
+    //Tab info
+    int tabID;
+    WUTab1 tab1;
+    WUTab2 tab2;
 
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_wind_upgrade);
 
-        money = (Money) getSupportFragmentManager().findFragmentById(R.id.solarUpgradeMoneyFragment);
+        setContentView(R.layout.wind_upgrade);
+        tabLayout = (TabLayout) findViewById(R.id.windTabLayout);
+        tabLayout.addTab(tabLayout.newTab().setText("Upgrade"));
+        tabLayout.addTab(tabLayout.newTab().setText("Factories"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+        money = (Money) getSupportFragmentManager().findFragmentById(R.id.mainMoney);
 
-        windSpeed = (TextView) findViewById(R.id.windUpgradeWindSpeedTextView);
-        basePower = (TextView) findViewById(R.id.windUpgradeBasePowerTextView);
-        currentPower = (TextView) findViewById(R.id.windUpgradeTotalPowerTextView);
-        windUpgrades = (ListView) findViewById(R.id.windUpgradeListView);
-        windUpgradeList = game.windUpgradeList;
-        windListAdapter = new UpgradeAdapter(this, windUpgradeList, windUpgrades);
-        windUpgrades.setAdapter(windListAdapter);
-
-        windUpgrades.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        viewPager = (ViewPager) findViewById(R.id.windViewPager);
+        adapter = new WindUpgradePageAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
+        viewPager.setAdapter(adapter);
+        viewPager.setOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                WindMaterialUpgrade upgrade = (WindMaterialUpgrade) windListAdapter.getItem(i);
-                if(upgrade.doUpgrade()) {
-                    windListAdapter.remove(upgrade);
-                    game.numWindMaterial = game.windUpgradeList.size();
-                    updateUpgradeUI();
-                }
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                viewPager.setCurrentItem(tab.getPosition());
+                tabID = tab.getPosition();
+
+
+
+
+
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                tabID = -1;
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                tabID = tab.getPosition();
 
             }
         });
 
 
+        upThread = new Thread() {
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(1000);
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                //Runs every second
+                                money.setMoney(Main.roundP(Main.game.money), Main.roundP(Main.game.money - Main.game.oldMoney));
+                                money.setPowerGen(Main.roundP(Main.game.powerTick), Main.roundP(Main.game.powerTick * 4), Main.game.day);
+                                System.out.println("TAB ID IS: " + tabID);
+                                switch (tabID) {
+                                    case 0:
+                                        if (adapter.tab1 != null) {
+                                            adapter.tab1.updateUpgradeUI();
+                                        }
+                                    case 1:
+                                        if (adapter.tab2 != null) {
+                                            adapter.tab2.updateUpgradeUI();
+                                        }
+                                    default:
+                                        break;
 
-
-
-        //Start loop for this activity.
-        if(savedInstanceState == null) {
-            upThread = new Thread() {
-                public void run() {
-                    try {
-                        while (!isInterrupted()) {
-                            Thread.sleep(1000);
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    //Runs every second
-                                    updateUpgradeUI();
                                 }
-                            });
-                        }
-                    } catch (InterruptedException ie) {
-                        ie.printStackTrace();
+
+
+                            }
+                        });
                     }
+                } catch (InterruptedException ie) {
+                    ie.printStackTrace();
                 }
-            };
-            upThread.start();
-        }
-
-
-        updateUpgradeUI();
-    }
-
-    @Override
-    protected void onDestroy() {
-        //Stop the thread when activity is exited.
-        if(upThread != null) {
-            upThread.interrupt();
-        }
-        super.onDestroy();
-    }
-    public void updateUpgradeUI(){
-        money.setMoney(Main.roundP(game.money), Main.roundP(game.money - game.oldMoney));
-        money.setPowerGen(Main.roundP(game.powerTick), Main.roundP(game.powerTick * 4), game.day);
-        windSpeed.setText("Wind Speed: " + game.windSpeed + " KMh");
-        basePower.setText("Base Gen: " + Main.roundP(game.windTurbinePPT * game.windTurbineAmount ) + "Wh");
-        currentPower.setText("Total Gen: " + Main.roundP(game.windTurbinePPT * game.windTurbineAmount * game.windSpeed ) + "Wh");
-
-        refreshWindGrid();
-    }
-
-    public void refreshWindGrid(){
-        if(game.numWindMaterial <= 5){
-            if(game.numWindMaterial == 0){
-                //Make 5 at once
-                for(int i = 0; i < 5; i++){
-                    double cost = Main.randomInt((int)game.windMaterialBasePrice, (int)(game.windMaterialBasePrice * 3) );
-                    game.windUpgradeList.add(new WindMaterialUpgrade(cost));
-                    game.numWindMaterial = game.windUpgradeList.size();
-                }
-
-
-            } else {
-                //Make 1
-                double cost = Main.randomInt((int)game.windMaterialBasePrice, (int)(game.windMaterialBasePrice * 3) );
-                game.windUpgradeList.add(new WindMaterialUpgrade(cost));
-                game.numWindMaterial = game.windUpgradeList.size();
             }
-        }
+        };
+        upThread.start();
 
 
-
-        windListAdapter.notifyDataSetChanged();
 
 
     }
+
+
+
+
 
 
 }

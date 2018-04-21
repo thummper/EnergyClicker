@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class SUTab1 extends android.support.v4.app.Fragment {
 
     Game game = Main.game;
-    Money money;
+
 
 
     TextView solarDayPower;
