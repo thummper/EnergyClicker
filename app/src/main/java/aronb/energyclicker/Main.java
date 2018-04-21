@@ -183,8 +183,7 @@ public class Main extends AppCompatActivity implements aronb.energyclicker.Tab1.
         money.setMoney(roundP(game.money), roundP(game.money - game.oldMoney));
         money.setPowerGen(roundP(game.powerTick), roundP(game.powerTick * 8), game.day);
     }
-    public static int randomInt(int min, int max)
-    {
+    public static int randomInt(int min, int max){
         int range = (max - min) + 1;
         return (int)(Math.random() * range) + min;
     }
