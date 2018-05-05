@@ -3,16 +3,27 @@ package aronb.energyclicker;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Xml;
 import android.view.View;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+import com.tickaroo.tikxml.XmlDataException;
+import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory;
+
+
+import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +31,16 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 
 public class Main extends AppCompatActivity implements aronb.energyclicker.Tab1.OnFragmentInteractionListener, aronb.energyclicker.Tab2.OnFragmentInteractionListener, aronb.energyclicker.Tab3.OnFragmentInteractionListener, aronb.energyclicker.Tab4.OnFragmentInteractionListener{
@@ -49,7 +70,60 @@ public class Main extends AppCompatActivity implements aronb.energyclicker.Tab1.
         setContentView(R.layout.activity_main);
         mPrefs = getPreferences(MODE_PRIVATE);
 
+        //Get location data to get wind
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        String longitude = Double.toString(location.getLongitude());
+        String latitue = Double.toString(location.getLatitude());
+        if(location != null){
+            //Make request to get windspeed.
+            final String baseURL = "http://api.weatherunlocked.com/api/";
+            Retrofit retro = new Retrofit.Builder()
+                    .baseUrl(baseURL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
 
+            RetroApi api = retro.create(RetroApi.class);
+
+            Call<ResponseBody> call = api.getWeather(longitude, latitue, "REDACTED", "REDACTED");
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    int statusCode = response.code();
+                    try {
+                        String resStr = response.body().string().toString();
+                        JSONObject json = new JSONObject(resStr);
+                        String windspeed = json.getString("windspd_kmh");
+                        game.windSpeed = Double.parseDouble(windspeed);
+                        game.autoWind = false;
+                        System.out.println("API CALL: " + windspeed);
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+
+
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    System.out.println("FAIL CALL");
+
+                    t.printStackTrace();
+
+                }
+            });
+
+
+        } else {
+            game.autoWind = true;
+        }
+
+        //If we can make an api call successfully, turn auto wind off and use the locations windspeed.
+
+
+
+        loadSettings(savedInstanceState);
         money =  (Money) getSupportFragmentManager().findFragmentById(R.id.mainMoney);
         tabLayout = (TabLayout) findViewById(R.id.tablayout);
         tabLayout.addTab(tabLayout.newTab().setText("Main"));
@@ -111,7 +185,10 @@ public class Main extends AppCompatActivity implements aronb.energyclicker.Tab1.
                                     game.loop();
                                     if(game.ticks == 7){
                                         saveGame();
-                                        sendNotification();
+                                        if(Main.game.notifications.equals("On")){
+                                            sendNotification();
+                                        }
+
                                     }
                                     game.tick();
                                     updateMainMoney();
@@ -163,11 +240,53 @@ public class Main extends AppCompatActivity implements aronb.energyclicker.Tab1.
 
     }
 
+    public void loadSettings(Bundle bundle){
+        getSupportLoaderManager().initLoader(0, bundle, new LoaderManager.LoaderCallbacks<List<SettingItem>>() {
+
+            @Override
+            public android.support.v4.content.Loader<List<SettingItem>> onCreateLoader(int id, Bundle args) {
+                return new SettingsLoader(Main.this);
+            }
+
+            @Override
+            public void onLoadFinished(android.support.v4.content.Loader<List<SettingItem>> loader, List<SettingItem> data) {
+                if(data == null){
+                    return;
+                }
+                for(SettingItem item : data ){
+                    if(item.setting.equals("Notification")){
+                        if(item.value.equals("On")){
+                            game.notifications = "On";
+                        } else {
+                            game.notifications = "Off";
+                        }
+                    }
+                }
+
+
+
+                //Will have to pass data to a list or something.
+
+
+
+
+
+
+            }
+
+            @Override
+            public void onLoaderReset(android.support.v4.content.Loader<List<SettingItem>> loader) {
+
+            }
+        });
+
+    }
+
     public void sendNotification(){
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.wturbine)
+                .setSmallIcon(R.mipmap.rclicker_app_icon_round)
                 .setContentTitle("Energy Clicker")
-                .setContentText(Main.game.money + "")
+                .setContentText(roundP(game.money) + "")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         NotificationManager nmanager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

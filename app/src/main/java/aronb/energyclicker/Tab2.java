@@ -22,6 +22,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class Tab2 extends Fragment {
 
     Button buySolarButton;
+    Button statsButton;
     Button upgradeSolar;
     TextView day;
     TextView panelAmount;
@@ -49,7 +50,14 @@ public class Tab2 extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_tab2, container, false);
 
-
+        statsButton = (Button) view.findViewById(R.id.tab2StatsButton);
+        statsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intents = new Intent(view.getContext(), Stats.class);
+                startActivity(intents);
+            }
+        });
 
         image = (CircleImageView) view.findViewById(R.id.solar_image);
         day = (TextView) view.findViewById(R.id.dayTextView);

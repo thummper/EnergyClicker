@@ -32,5 +32,9 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.2.0'
     //Saving objects
     compile 'com.google.code.gson:gson:2.7'
+    compile 'com.squareup.retrofit2:retrofit:2.4.0'
+    compile 'com.tickaroo.tikxml:retrofit-converter:0.8.13'
+    compile 'com.squareup.retrofit2:converter-simplexml:2.4.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
 
 }

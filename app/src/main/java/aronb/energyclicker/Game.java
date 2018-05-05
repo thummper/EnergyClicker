@@ -11,6 +11,8 @@ public class Game implements Serializable{
     double money = 100000;
     double oldMoney = 0;
     double powerBonus = 1;
+    String notifications = "On";
+    boolean autoWind = true;
 
 
 
@@ -226,7 +228,10 @@ public class Game implements Serializable{
 
         if (ticks == 8) {
             //Change day and wind speed.
-            windSpeed = Math.round((Math.random() * (windUpper - windLower)) + windLower);
+            if(autoWind){
+                windSpeed = Math.round((Math.random() * (windUpper - windLower)) + windLower);
+            }
+
 
 
             if (day) {

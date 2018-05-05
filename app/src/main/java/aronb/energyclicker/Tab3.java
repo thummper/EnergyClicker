@@ -21,6 +21,7 @@ public class Tab3 extends Fragment {
     //Wind Turbines
 
     Button buyTurbines;
+    Button statsButton;
     TextView windSpeed;
     Button upgradeTurbines;
     TextView turbineAmount;
@@ -48,6 +49,15 @@ public class Tab3 extends Fragment {
         upgradeTurbines = (Button) view.findViewById(R.id.upgradeWindTurbine);
         windSpeed =  (TextView) view.findViewById(R.id.windTextview);
         turbineAmount = (TextView) view.findViewById(R.id.windAmountTextView);
+
+        statsButton = (Button) view.findViewById(R.id.tab3StatsButton);
+        statsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intents = new Intent(view.getContext(), Stats.class);
+                startActivity(intents);
+            }
+        });
 
         if(getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             image.setVisibility(View.GONE);

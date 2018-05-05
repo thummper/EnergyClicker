@@ -11,9 +11,9 @@ import java.util.List;
  * Created by Aron on 05/05/2018.
  */
 
-public class SettingsLoader extends android.support.v4.content.AsyncTaskLoader<List<String>> {
+public class SettingsLoader extends android.support.v4.content.AsyncTaskLoader<List<SettingItem>> {
     //I want to load settings in the form of "ID VALUE"
-    private List<String> settingList;
+    private List<SettingItem> settingList;
 
 
     public SettingsLoader(Context context){
@@ -24,20 +24,20 @@ public class SettingsLoader extends android.support.v4.content.AsyncTaskLoader<L
 
     //Runs on worker thread
     @Override
-    public List<String> loadInBackground(){
+    public List<SettingItem> loadInBackground(){
         System.out.println("LOADING IN BG");
 
-        List<String> loadedData = new ArrayList<>();
+        List<SettingItem> loadedData = new ArrayList<>();
 
         Cursor settingsFromProvider = this.getContext().getContentResolver().query(SettingsDBData.CONTENT_URI, null, null,null,null);
 
         if(settingsFromProvider.getCount() > 0){
             settingsFromProvider.moveToFirst();
             do{
-                String setting = settingsFromProvider.getString(0);
-                String value = settingsFromProvider.getString(1);
+                SettingItem item = new SettingItem(settingsFromProvider.getString(0), settingsFromProvider.getString(1));
 
-                loadedData.add(setting + " " + value);
+
+                loadedData.add(item);
             } while (settingsFromProvider.moveToNext());
 
         }
@@ -46,7 +46,7 @@ public class SettingsLoader extends android.support.v4.content.AsyncTaskLoader<L
 
     //Called when there is new data to deliver to client
     @Override
-    public void deliverResult(List<String> settings){
+    public void deliverResult(List<SettingItem> settings){
         if(isReset()) {
             //Loader has been reset, ignore result
 
@@ -57,7 +57,7 @@ public class SettingsLoader extends android.support.v4.content.AsyncTaskLoader<L
         }
 
 
-        List<String> oldSettings = settingList;
+        List<SettingItem> oldSettings = settingList;
         settingList = settings;
 
         if (isStarted()) {
@@ -95,13 +95,13 @@ public class SettingsLoader extends android.support.v4.content.AsyncTaskLoader<L
     }
 
     @Override
-    public void onCanceled(List<String> settings){
+    public void onCanceled(List<SettingItem> settings){
         super.onCanceled(settings);
         releaseResources(settings);
     }
 
 
-    public void releaseResources(List<String> settings){
+    public void releaseResources(List<SettingItem> settings){
 
     }
 

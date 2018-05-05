@@ -19,6 +19,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Tab4 extends Fragment {
     Button buyHydro;
+    Button statsButton;
     Button upgradeHydro;
     TextView hydroEff;
     TextView hydroAmount;
@@ -50,6 +51,15 @@ public class Tab4 extends Fragment {
         upgradeHydro = (Button) view.findViewById(R.id.upgradeHydroButton);
         hydroEff = (TextView) view.findViewById(R.id.hydroTextView);
         hydroAmount = (TextView) view.findViewById(R.id.hydroAmountTextView);
+
+        statsButton = (Button) view.findViewById(R.id.tab4StatsButton);
+        statsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intents = new Intent(view.getContext(), Stats.class);
+                startActivity(intents);
+            }
+        });
 
         if(getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             image.setVisibility(View.GONE);
