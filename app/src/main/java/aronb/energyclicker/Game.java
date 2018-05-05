@@ -26,6 +26,12 @@ public class Game implements Serializable{
     public int solarPanelAmount = 0;
     public double solarPanelPPT = 5000;
     public double solarPanelNPPT = 2000;
+
+    //Solar Factories
+    public double solarFactoryAmount = 0;
+    public double solarFactoryOutput = 0.2;
+    public double solarPanelConstruct = 0;
+    public double solarFactoryCost = 40000;
     //Solar Upgrades.
     public int numSolarMaterial = 0;
     public double materialBasePrice = 1000;
@@ -41,6 +47,11 @@ public class Game implements Serializable{
     public double windSpeed = 5;
     public double windUpper = 33;
     public double windLower = 8;
+    //wind Factories
+    public double windFactoryAmount = 0;
+    public double windFactoryOutput = 0.1;
+    public double windFactoryConst = 0;
+    public double windFactoryCost = 500000;
     //Wind Upgrades
     public int numWindMaterial = 0;
     public double windMaterialBasePrice = 10000;
@@ -48,9 +59,9 @@ public class Game implements Serializable{
 
     //Hydro Stuff
     public double hydroCost = 20000000000L;
-    public int hydroAmount = 1;
+    public int hydroAmount = 0;
     public double hydroPPT = 1500000000;
-    public double hydroEfficiency = 0.5;
+    public double hydroEfficiency = 0.55;
     public double effUpgradeCost = 500;
     public double hydroDiscountUpgradeCost = 750;
     public double hydroDiscountAmount = 1;
@@ -128,6 +139,21 @@ public class Game implements Serializable{
 
                 }
             }
+        } else if(item == 3){
+            //Buy solar factory.
+            if(money >= solarFactoryCost){
+                money -= solarFactoryCost;
+                solarFactoryAmount++;
+                solarFactoryCost *= 1.5;
+            }
+
+
+        } else if(item == 4){
+            if(money >= windFactoryCost){
+                money -= windFactoryCost;
+                windFactoryAmount++;
+                windFactoryCost *= 2;
+            }
         }
 
     }
@@ -163,6 +189,23 @@ public class Game implements Serializable{
         }
         powerAdd = 0;
         powerTick = power - oldPower;
+
+        //Factories produce
+        if(solarFactoryAmount > 0 || windFactoryAmount > 0){
+            //We have factories.
+            solarPanelConstruct += solarFactoryAmount * solarFactoryOutput;
+            windFactoryConst += windFactoryAmount * windFactoryOutput;
+            if(solarPanelConstruct >= 1){
+                solarPanelConstruct--;
+                solarPanelAmount++;
+            }
+            if(windFactoryConst >= 1){
+                windFactoryConst--;
+                windTurbineAmount++;
+            }
+
+
+        }
 
         //Every tick we sell all power
         double profit = (power * powerCost)/1000; //(We add power in Watt/H not KWh so money can use the same round method

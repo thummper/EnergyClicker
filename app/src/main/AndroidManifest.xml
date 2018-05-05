@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="aronb.energyclicker">
 
+
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
 
     <application
@@ -24,7 +25,18 @@
         <activity android:name=".SolarUpgrades" />
         <activity android:name=".WindUpgrade" />
         <activity android:name=".HydroUpgrade" />
-        <activity android:name=".Stats"></activity>
+        <activity android:name=".Stats" />
+        <activity
+            android:name=".Settings"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/AppTheme"></activity>
+
+        <provider android:name="aronb.energyclicker.SettingProvider"
+            android:authorities="aronb.energyclicker.provider.Settings">
+        </provider>
+
+
+
     </application>
 
 </manifest>

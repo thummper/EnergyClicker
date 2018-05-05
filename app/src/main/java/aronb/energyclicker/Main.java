@@ -1,11 +1,16 @@
 package aronb.energyclicker;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 
 import com.google.gson.Gson;
 
@@ -84,6 +89,9 @@ public class Main extends AppCompatActivity implements aronb.energyclicker.Tab1.
         });
 
         if(savedInstanceState == null && threadStarted == false) {
+
+
+
             //Running for the first time, try and load game.
             try {
                 loadGame();
@@ -103,6 +111,7 @@ public class Main extends AppCompatActivity implements aronb.energyclicker.Tab1.
                                     game.loop();
                                     if(game.ticks == 7){
                                         saveGame();
+                                        sendNotification();
                                     }
                                     game.tick();
                                     updateMainMoney();
@@ -143,6 +152,7 @@ public class Main extends AppCompatActivity implements aronb.energyclicker.Tab1.
             gameThread.start();
 
 
+
         }
 
 
@@ -150,6 +160,19 @@ public class Main extends AppCompatActivity implements aronb.energyclicker.Tab1.
 
 
 
+
+    }
+
+    public void sendNotification(){
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.wturbine)
+                .setContentTitle("Energy Clicker")
+                .setContentText(Main.game.money + "")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManager nmanager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        nmanager.notify(001, mBuilder.build());
 
     }
 

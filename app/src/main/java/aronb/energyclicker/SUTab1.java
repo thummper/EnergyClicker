@@ -18,6 +18,7 @@ import java.util.ArrayList;
  */
 
 public class SUTab1 extends android.support.v4.app.Fragment {
+    //Contains upgrades for solarpanels.
 
     Game game = Main.game;
 
